@@ -172,8 +172,10 @@ function getPrevMonth(current: Date): Date {
   if (current.getMonth() === 0) {
     prev.setFullYear(prev.getFullYear() - 1);
     prev.setMonth(11);
+    prev.setDate(1);
   } else {
     prev.setMonth(prev.getMonth() - 1);
+    prev.setDate(1);
   }
 
   return prev;
@@ -185,8 +187,10 @@ function getNextMonth(current: Date): Date {
   if (current.getMonth() === 11) {
     next.setFullYear(next.getFullYear() + 1);
     next.setMonth(1);
+    next.setDate(1);
   } else {
     next.setMonth(next.getMonth() + 1);
+    next.setDate(1);
   }
 
   return next;
