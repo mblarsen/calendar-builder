@@ -381,3 +381,15 @@ test("selection > all included", () => {
     calendar.days.filter((day) => day.selection).map((day) => day.selection)
   ).toStrictEqual(Array(calendar.days.length).fill("included"));
 });
+
+test("navigate > prev", () => {
+  const calendar = create({ year: 2021, month: 9 });
+
+  expect(calendar.prev()?.current?.getMonth()).toBe(7);
+});
+
+test("navigate > next", () => {
+  const calendar = create({ year: 2021, month: 9 });
+
+  expect(calendar.next()?.current?.getMonth()).toBe(9);
+});

@@ -8,6 +8,8 @@ export type CalendarSheet = {
   start: Date;
   end: Date;
   days: CalendarDay[];
+  next: () => CalendarSheet;
+  prev: () => CalendarSheet;
 };
 
 export type CalendarDay = {
@@ -110,6 +112,8 @@ export const create = (
     start,
     end,
     days,
+    next: () => create(nextMonth, options),
+    prev: () => create(prevMonth, options),
   };
 };
 
