@@ -102,8 +102,6 @@ export const create = (
     ...lastDaysFill,
   ];
 
-  // TODO selection
-
   return {
     config,
     nextMonth,
