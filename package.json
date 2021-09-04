@@ -1,9 +1,9 @@
 {
-  "name": "aftale",
+  "name": "calendar-builder",
   "version": "0.1.0",
   "description": "Provides all logic you need for building a calendar or datetime-picker.",
   "author": "Michael Bøcker-Larsen <mbl@code.boutique>",
-  "repository": "https://github.com/mblarsen/aftale",
+  "repository": "https://github.com/mblarsen/calendar-builder",
   "license": "MIT",
   "keywords": [
     "calendar",
