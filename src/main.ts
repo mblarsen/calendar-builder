@@ -1,47 +1,62 @@
-export type CalendarDayState = "hide" | "show" | "active";
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+export type CalendarDayState = "valid" | "invalid";
+
+export type CalendarDate =
+  | { year: number; month: number; day?: number }
+  | string
+  | number
+  | Date;
 
 export type CalendarSheet = {
   config: CalendarBuilderConfig;
-  nextMonth: Date;
-  prevMonth: Date;
   current: Date;
-  start: Date;
-  end: Date;
   days: CalendarDay[];
+  end: Date;
   next: () => CalendarSheet;
+  nextMonth: Date;
+  now: Date;
   prev: () => CalendarSheet;
+  prevMonth: Date;
+  start: Date;
 };
 
 export type CalendarDay = {
   state: CalendarDayState;
   day: number;
   dayOfWeek: number;
+  date: Date;
+  isToday: boolean;
+  inMonth: boolean;
   selection: "start" | "end" | "included" | "single" | null;
+};
+
+type CalendarBuilderOptions = {
+  firstDay: number;
+  fillWeek: boolean;
+  after: CalendarDate;
+  before: CalendarDate;
+  selection: [CalendarDate, CalendarDate];
+  now: CalendarDate;
 };
 
 type CalendarBuilderConfig = {
   firstDay: number;
-  otherDays: CalendarDayState;
   fillWeek: boolean;
-  after: Date | undefined;
-  before: Date | undefined;
-  selection: [Date, Date] | undefined;
+  after: Date | null;
+  before: Date | null;
+  selection: [Date, Date] | null;
+  now: Date | null;
 };
 
 export const create = (
-  now?:
-    | { year: number; month: number }
-    | string
-    | number
-    | Date
-    | null
-    | undefined,
-  options?: Partial<CalendarBuilderConfig>
+  forDate?: CalendarDate | null | undefined,
+  options?: Partial<CalendarBuilderOptions>
 ): CalendarSheet => {
-  const current = setMidnight(getCurrent(now));
+  const current = setMidnight(fromCalendarDate(forDate || new Date()));
   if (!current || current.toString() === "Invalid Date") {
     throw new Error("Invalid Date");
   }
+  const now = setMidnight(fromCalendarDate(options?.now || new Date()));
   const start = new Date(current.getFullYear(), current.getMonth(), 1);
   const end = new Date(current.getFullYear(), current.getMonth() + 1, 0);
   const nextMonth = getNextMonth(current);
@@ -59,17 +74,22 @@ export const create = (
       : firstDay - config.firstDay;
   const lastDays = weeks * 7 - (firstDays + end.getDate());
 
-  let indexOffset = 0;
+  let indexOffset = config.firstDay;
 
   const firstDaysFill = (
     firstDays > 0 ? getDisplayDays(prevMonth).slice(-firstDays) : []
   ).map((day, index) => {
-    const date = new Date(prevMonth.getFullYear(), prevMonth.getMonth(), day);
+    const date = setMidnight(
+      new Date(prevMonth.getFullYear(), prevMonth.getMonth(), day)
+    );
     return {
+      date,
       day,
       dayOfWeek: (index + indexOffset) % 7,
-      state: config.otherDays,
+      isToday: now.getTime() == date.getTime(),
       selection: getSelectionState(date, config.selection),
+      state: clampDate(date, config.after, config.before),
+      inMonth: false,
     };
   });
 
@@ -80,10 +100,13 @@ export const create = (
     .map((day, index) => {
       const date = new Date(current.getFullYear(), current.getMonth(), day);
       return {
+        date,
         day,
         dayOfWeek: (index + indexOffset) % 7,
-        state: clampDate(date, config.after, config.before),
+        isToday: now.getTime() == date.getTime(),
         selection: getSelectionState(date, config.selection),
+        state: clampDate(date, config.after, config.before),
+        inMonth: true,
       };
     });
 
@@ -94,10 +117,13 @@ export const create = (
     .map((day, index) => {
       const date = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), day);
       return {
+        date,
         day,
         dayOfWeek: (index + indexOffset) % 7,
-        state: config.otherDays,
+        isToday: now.getTime() == date.getTime(),
         selection: getSelectionState(date, config.selection),
+        state: clampDate(date, config.after, config.before),
+        inMonth: false,
       };
     });
 
@@ -115,13 +141,13 @@ export const create = (
     start,
     end,
     days,
+    now,
     next: () => create(nextMonth, options),
     prev: () => create(prevMonth, options),
   };
 };
 
-function setMidnight(date?: Date): Date | null | undefined {
-  if (!date) return;
+function setMidnight(date: Date): Date {
   return new Date(
     date.getFullYear(),
     date.getMonth(),
@@ -133,39 +159,44 @@ function setMidnight(date?: Date): Date | null | undefined {
   );
 }
 
-function getCurrent(
-  now?:
-    | { year: number; month: number }
-    | string
-    | number
-    | Date
-    | null
-    | undefined
-): Date {
-  if (now instanceof Date) return now;
-  if (typeof now === "number") return new Date(now);
-  if (typeof now === "string") return new Date(now);
+function fromCalendarDate(forDate: CalendarDate): Date {
+  if (forDate instanceof Date) return forDate;
+  if (typeof forDate === "number") return new Date(forDate);
+  if (typeof forDate === "string") return new Date(forDate);
   if (
-    now &&
-    typeof now === "object" &&
-    typeof now.year === "number" &&
-    typeof now.month === "number"
+    forDate &&
+    typeof forDate === "object" &&
+    typeof forDate.year === "number" &&
+    typeof forDate.month === "number"
   ) {
-    return new Date(now.year, now.month - 1, 1, 0, 0, 0, 0);
+    return new Date(
+      forDate.year,
+      forDate.month - 1,
+      forDate.day || 1,
+      0,
+      0,
+      0,
+      0
+    );
   }
-  return new Date();
+  throw new Error("Invalid Date");
 }
 
 function createConfig(
-  options?: Partial<CalendarBuilderConfig>
+  options?: Partial<CalendarBuilderOptions>
 ): CalendarBuilderConfig {
   return {
-    selection: options?.selection,
-    before: options?.before,
+    after: options?.after ? fromCalendarDate(options?.after) : null,
+    before: options?.before ? fromCalendarDate(options?.before) : null,
     fillWeek: options?.fillWeek ?? true,
-    after: options?.after,
-    otherDays: options?.otherDays || "show",
     firstDay: options?.firstDay || 0,
+    now: options?.now ? fromCalendarDate(options?.now) : null,
+    selection: options?.selection
+      ? [
+          fromCalendarDate(options.selection[0]),
+          fromCalendarDate(options.selection[1]),
+        ]
+      : null,
   };
 }
 
@@ -210,12 +241,10 @@ function getDisplayDays(current: Date): number[] {
 
 function clampDate(
   current: Date,
-  after: Date | undefined,
-  before: Date | undefined,
-  positiveState: CalendarDayState = "active",
-  negativeState: CalendarDayState = "show"
+  after: Date | null,
+  before: Date | null
 ): CalendarDayState {
-  if (!after && !before) return "active";
+  if (!after && !before) return "valid";
 
   const val = current.getTime();
 
@@ -237,7 +266,7 @@ function clampDate(
 
   const clampedDate = Math.min(Math.max(val, min), max);
 
-  return clampedDate === current.getTime() ? positiveState : negativeState;
+  return clampedDate === current.getTime() ? "valid" : "invalid";
 }
 
 function getSelectionState(
