@@ -53,7 +53,10 @@ export const create = (
 
   const weeks = config.fillWeek ? 6 : Math.ceil(end.getDate() / 7);
 
-  const firstDays = firstDay - config.firstDay;
+  const firstDays =
+    firstDay - config.firstDay < 0
+      ? 7 + firstDay - config.firstDay
+      : firstDay - config.firstDay;
   const lastDays = weeks * 7 - (firstDays + end.getDate());
 
   let indexOffset = 0;
