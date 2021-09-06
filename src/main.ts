@@ -43,19 +43,22 @@ type CalendarBuilderConfig = {
   after: Date | null;
   before: Date | null;
   selection: [Date, Date] | null;
-  now: Date | null;
+  now: Date;
 };
 
-function mapDay(now: Date, config: CalendarBuilderConfig) {
+type DayMapper = (day: number, index: number) => CalendarDay;
+type DayMapperFactory = (params: {
+  indexOffset: number;
+  date: Date;
+  inMonth: boolean;
+}) => DayMapper;
+
+function createDayMapperFactory(now: Date, config: CalendarBuilderConfig) {
   return ({
-      baseDate,
-      inMonth,
       indexOffset,
-    }: {
-      baseDate: Date;
-      inMonth: boolean;
-      indexOffset: number;
-    }) =>
+      date: baseDate,
+      inMonth,
+    }: Parameters<DayMapperFactory>[0]) =>
     (day: number, index: number) => {
       const date = setMidnight(
         new Date(baseDate.getFullYear(), baseDate.getMonth(), day)
@@ -80,43 +83,30 @@ export const create = (
   if (!current || current.toString() === "Invalid Date") {
     throw new Error("Invalid Date");
   }
-  const now = setMidnight(fromCalendarDate(options?.now || new Date()));
-  const start = new Date(current.getFullYear(), current.getMonth(), 1);
-  const end = new Date(current.getFullYear(), current.getMonth() + 1, 0);
-  const next = getNextMonth(current);
-  const prev = getPrevMonth(current);
   const config = createConfig(options);
-  const firstDay = start.getDay();
-  const weeks = config.fillWeek ? 6 : Math.ceil(end.getDate() / 7);
+  const { firstDay, weeks, end, now, prev, next, start } = getMonthData(
+    current,
+    config
+  );
+
+  const dayMapper = createDayMapperFactory(now, config);
 
   const firstDays = getFirstDays(firstDay, config);
   const lastDays = getLastDays(weeks, firstDays, end);
 
-  let indexOffset = config.firstDay;
-
-  const dayMapper = mapDay(now, config);
-
-  const firstDaysFill = (
-    firstDays > 0 ? getDisplayDays(prev).slice(-firstDays) : []
-  ).map(dayMapper({ baseDate: prev, inMonth: false, indexOffset }));
-
-  indexOffset += firstDaysFill.length;
-
-  const monthDaysFill = Array.from({ length: end.getDate() })
-    .map((_, index) => index + 1)
-    .map(dayMapper({ baseDate: current, inMonth: true, indexOffset }));
-
-  indexOffset += monthDaysFill.length;
-
-  const lastDaysFill = getDisplayDays(next)
-    .slice(0, lastDays)
-    .map(dayMapper({ baseDate: next, inMonth: false, indexOffset }));
-
-  const days: CalendarDay[] = [
-    ...firstDaysFill,
-    ...monthDaysFill,
-    ...lastDaysFill,
-  ];
+  const days = fillDays(
+    config.firstDay,
+    dayMapper,
+    [
+      firstDays > 0 ? getDisplayDays(prev).slice(-firstDays) : [],
+      { date: prev, inMonth: false },
+    ],
+    [
+      Array.from(Array(end.getDate())).map((_, index) => index + 1),
+      { date: current, inMonth: true },
+    ],
+    [getDisplayDays(next).slice(0, lastDays), { date: next, inMonth: false }]
+  );
 
   return {
     config,
@@ -129,6 +119,21 @@ export const create = (
     now,
   };
 };
+
+function getMonthData(current: Date, config: CalendarBuilderConfig) {
+  const now = config.now;
+  const start = setMidnight(
+    new Date(current.getFullYear(), current.getMonth(), 1)
+  );
+  const end = setMidnight(
+    new Date(current.getFullYear(), current.getMonth() + 1, 0)
+  );
+  const next = getNextMonth(current);
+  const prev = getPrevMonth(current);
+  const firstDay = start.getDay();
+  const weeks = config.fillWeek ? 6 : Math.ceil(end.getDate() / 7);
+  return { firstDay, weeks, end, now, prev, next, start };
+}
 
 function getLastDays(weeks: number, firstDays: number, end: Date) {
   return weeks * 7 - (firstDays + end.getDate());
@@ -179,15 +184,19 @@ function createConfig(
   options?: Partial<CalendarBuilderOptions>
 ): CalendarBuilderConfig {
   return {
-    after: options?.after ? fromCalendarDate(options?.after) : null,
-    before: options?.before ? fromCalendarDate(options?.before) : null,
+    after: options?.after
+      ? setMidnight(fromCalendarDate(options?.after))
+      : null,
+    before: options?.before
+      ? setMidnight(fromCalendarDate(options?.before))
+      : null,
     fillWeek: options?.fillWeek ?? true,
     firstDay: options?.firstDay || 0,
-    now: options?.now ? fromCalendarDate(options?.now) : null,
+    now: setMidnight(fromCalendarDate(options?.now || new Date())),
     selection: options?.selection
       ? [
-          fromCalendarDate(options.selection[0]),
-          fromCalendarDate(options.selection[1]),
+          setMidnight(fromCalendarDate(options.selection[0])),
+          setMidnight(fromCalendarDate(options.selection[1])),
         ]
       : null,
   };
@@ -232,34 +241,25 @@ function getDisplayDays(current: Date): number[] {
   return Array.from({ length: days }).map((_, index: number) => index + 1);
 }
 
+function daysDelta(day: Date, delta: number) {
+  return new Date(day.getFullYear(), day.getMonth(), day.getDate() + delta);
+}
+
 function clampDate(
-  current: Date,
+  date: Date,
   after: Date | null,
   before: Date | null
 ): CalendarDayState {
   if (!after && !before) return "valid";
 
-  const val = current.getTime();
+  const maxTime = Number.MAX_SAFE_INTEGER;
+  const val = date.getTime();
+  const min = after ? daysDelta(after, 1).getTime() : 0;
+  const max = before ? daysDelta(before, -1).getTime() : maxTime;
 
-  const min = after
-    ? new Date(
-        after.getFullYear(),
-        after.getMonth(),
-        after.getDate() + 1
-      ).getTime()
-    : 0;
+  const clamped = Math.min(Math.max(val, min), max);
 
-  const max = before
-    ? new Date(
-        before.getFullYear(),
-        before.getMonth(),
-        before.getDate() - 1
-      ).getTime()
-    : Number.MAX_SAFE_INTEGER;
-
-  const clampedDate = Math.min(Math.max(val, min), max);
-
-  return clampedDate === current.getTime() ? "valid" : "invalid";
+  return clamped === date.getTime() ? "valid" : "invalid";
 }
 
 function getSelectionState(
@@ -281,4 +281,21 @@ function getSelectionState(
   if (min < val && val < max) return "included";
 
   return null;
+}
+
+function fillDays(
+  startIndex: number,
+  mapper: DayMapperFactory,
+  ...daysMapperPairs: [
+    number[],
+    Omit<Parameters<DayMapperFactory>[0], "indexOffset">
+  ][]
+) {
+  let indexOffset = startIndex;
+  return daysMapperPairs.reduce((days, [batch, params]) => {
+    const mappedDays = batch.map(mapper({ ...params, indexOffset }));
+    indexOffset += mappedDays.length;
+    days.push(...mappedDays);
+    return days;
+  }, [] as CalendarDay[]);
 }

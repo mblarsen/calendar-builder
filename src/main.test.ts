@@ -48,6 +48,11 @@ describe("create", () => {
 
 describe("config", () => {
   test("defaults", () => {
+    const now = new Date();
+    now.setHours(0);
+    now.setMinutes(0);
+    now.setSeconds(0);
+    now.setMilliseconds(0);
     const calendar = create();
     expect(calendar.config).toStrictEqual({
       after: null,
@@ -55,11 +60,16 @@ describe("config", () => {
       fillWeek: true,
       firstDay: 0,
       selection: null,
-      now: null,
+      now,
     });
   });
 
   test("simple", () => {
+    const now = new Date();
+    now.setHours(0);
+    now.setMinutes(0);
+    now.setSeconds(0);
+    now.setMilliseconds(0);
     const calendar = create(new Date(), {
       firstDay: 1,
       fillWeek: false,
@@ -70,7 +80,7 @@ describe("config", () => {
       fillWeek: false,
       firstDay: 1,
       selection: null,
-      now: null,
+      now,
     });
   });
 });
