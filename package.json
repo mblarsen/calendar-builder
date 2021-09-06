@@ -6,8 +6,7 @@
   "repository": "https://github.com/mblarsen/calendar-builder",
   "license": "MIT",
   "files": [
-    "dist",
-    "types"
+    "dist"
   ],
   "keywords": [
     "calendar",

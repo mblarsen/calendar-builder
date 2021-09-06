@@ -14,7 +14,7 @@ import {
   CalendarDate,
   CalendarDay,
   CalendarSheet,
-} from "../types";
+} from "./types";
 
 type DayMapper = (day: number, index: number) => CalendarDay;
 

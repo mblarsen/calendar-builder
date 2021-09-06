@@ -1,4 +1,4 @@
-export declare type CalendarBuilderOptions = {
+export type CalendarBuilderOptions = {
   firstDay: number;
   fillWeek: boolean;
   after: CalendarDate;
@@ -7,7 +7,7 @@ export declare type CalendarBuilderOptions = {
   now: CalendarDate;
 };
 
-export declare type CalendarBuilderConfig = {
+export type CalendarBuilderConfig = {
   firstDay: number;
   fillWeek: boolean;
   after: Date | null;
@@ -16,15 +16,15 @@ export declare type CalendarBuilderConfig = {
   now: Date;
 };
 
-export declare type CalendarDayState = "valid" | "invalid";
+export type CalendarDayState = "valid" | "invalid";
 
-export declare type CalendarDate =
+export type CalendarDate =
   | { year: number; month: number; day?: number }
   | string
   | number
   | Date;
 
-export declare type CalendarSheet = {
+export type CalendarSheet = {
   config: CalendarBuilderConfig;
   current: Date;
   days: CalendarDay[];
@@ -35,7 +35,7 @@ export declare type CalendarSheet = {
   start: Date;
 };
 
-export declare type CalendarDay = {
+export type CalendarDay = {
   state: CalendarDayState;
   day: number;
   dayOfWeek: number;
