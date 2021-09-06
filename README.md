@@ -7,6 +7,16 @@
 [![NPM version](http://img.shields.io/npm/v/calendar-builder.svg)](https://www.npmjs.com/package/calendar-builder)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mblarsen/calendar-builder/blob/main/LICENSE)
 
-> All the logic need to quickly build custom calendars for any framework or plain vanilla JavaScript.
+> All the logic you need to quickly build a custom calendar or date-picker for any framework or plain vanilla JavaScript.
 
 ![Example](assets/example.jpeg)
+
+A UI helper for building calendars with all the UI logic abstracted away.
+
+Features:
+
+- Generates data to populate a grid
+- Supports fill or fitted weeks (filled weeks always shows 6 weeks)
+- Supports before and after date
+- Supports start of week
+- Supports range selection
