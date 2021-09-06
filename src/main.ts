@@ -8,15 +8,13 @@ import {
   getPrevMonth,
   setMidnight,
 } from "./helpers";
-
-type CalendarBuilderConfig = {
-  firstDay: number;
-  fillWeek: boolean;
-  after: Date | null;
-  before: Date | null;
-  selection: [Date, Date] | null;
-  now: Date;
-};
+import {
+  CalendarBuilderConfig,
+  CalendarBuilderOptions,
+  CalendarDate,
+  CalendarDay,
+  CalendarSheet,
+} from "../types";
 
 type DayMapper = (day: number, index: number) => CalendarDay;
 

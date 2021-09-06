@@ -1,3 +1,9 @@
+import {
+  CalendarBuilderConfig,
+  CalendarDate,
+  CalendarDayState,
+} from "../types";
+
 export function getLastDays(
   weeks: number,
   firstDays: number,

@@ -5,6 +5,10 @@
   "author": "Michael Bøcker-Larsen <mbl@code.boutique>",
   "repository": "https://github.com/mblarsen/calendar-builder",
   "license": "MIT",
+  "files": [
+    "dist",
+    "types"
+  ],
   "keywords": [
     "calendar",
     "date",
