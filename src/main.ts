@@ -12,11 +12,9 @@ export type CalendarSheet = {
   current: Date;
   days: CalendarDay[];
   end: Date;
-  next: () => CalendarSheet;
-  nextMonth: Date;
+  next: Date;
   now: Date;
-  prev: () => CalendarSheet;
-  prevMonth: Date;
+  prev: Date;
   start: Date;
 };
 
@@ -85,8 +83,8 @@ export const create = (
   const now = setMidnight(fromCalendarDate(options?.now || new Date()));
   const start = new Date(current.getFullYear(), current.getMonth(), 1);
   const end = new Date(current.getFullYear(), current.getMonth() + 1, 0);
-  const nextMonth = getNextMonth(current);
-  const prevMonth = getPrevMonth(current);
+  const next = getNextMonth(current);
+  const prev = getPrevMonth(current);
   const config = createConfig(options);
   const firstDay = start.getDay();
   const weeks = config.fillWeek ? 6 : Math.ceil(end.getDate() / 7);
@@ -99,8 +97,8 @@ export const create = (
   const dayMapper = mapDay(now, config);
 
   const firstDaysFill = (
-    firstDays > 0 ? getDisplayDays(prevMonth).slice(-firstDays) : []
-  ).map(dayMapper({ baseDate: prevMonth, inMonth: false, indexOffset }));
+    firstDays > 0 ? getDisplayDays(prev).slice(-firstDays) : []
+  ).map(dayMapper({ baseDate: prev, inMonth: false, indexOffset }));
 
   indexOffset += firstDaysFill.length;
 
@@ -110,9 +108,9 @@ export const create = (
 
   indexOffset += monthDaysFill.length;
 
-  const lastDaysFill = getDisplayDays(nextMonth)
+  const lastDaysFill = getDisplayDays(next)
     .slice(0, lastDays)
-    .map(dayMapper({ baseDate: nextMonth, inMonth: false, indexOffset }));
+    .map(dayMapper({ baseDate: next, inMonth: false, indexOffset }));
 
   const days: CalendarDay[] = [
     ...firstDaysFill,
@@ -122,15 +120,13 @@ export const create = (
 
   return {
     config,
-    nextMonth,
-    prevMonth,
+    next,
+    prev,
     current,
     start,
     end,
     days,
     now,
-    next: () => create(nextMonth, options),
-    prev: () => create(prevMonth, options),
   };
 };
 

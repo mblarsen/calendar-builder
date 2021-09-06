@@ -576,17 +576,3 @@ describe("selection", () => {
     ).toStrictEqual(Array(calendar.days.length).fill("included"));
   });
 });
-
-describe("navigate", () => {
-  test("prev", () => {
-    const calendar = create({ year: 2021, month: 9 });
-
-    expect(calendar.prev()?.current?.getMonth()).toBe(7);
-  });
-
-  test("next", () => {
-    const calendar = create({ year: 2021, month: 9 });
-
-    expect(calendar.next()?.current?.getMonth()).toBe(9);
-  });
-});
