@@ -1,7 +1,7 @@
 # calendar-builder :calendar:
 
 [![Build status](http://img.shields.io/travis/mblarsen/browser-acl.svg)](http://travis-ci.org/mblarsen/calendar-builder)
-[![codebeat badge](https://codebeat.co/badges/8ca0a5dd-6e9f-4b88-8c01-43936e1972e7)](https://codebeat.co/projects/github-com-mblarsen-calendar-builder-main)
+[![codebeat badge](https://codebeat.co/badges/008dc8fa-f435-4f77-8323-78ebbeabc6ee)](https://codebeat.co/projects/github-com-mblarsen-calendar-builder-main)
 [![Known vulnerabilities](https://snyk.io/test/github/mblarsen/calendar-builder/badge.svg)](https://snyk.io/test/github/mblarsen/calendar-builder)
 [![Monthly downloads](https://img.shields.io/npm/dm/calendar-builder.svg)](https://www.npmjs.com/package/calendar-builder)
 [![NPM version](http://img.shields.io/npm/v/calendar-builder.svg)](https://www.npmjs.com/package/calendar-builder)
