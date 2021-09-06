@@ -48,6 +48,32 @@ type CalendarBuilderConfig = {
   now: Date | null;
 };
 
+function mapDay(now: Date, config: CalendarBuilderConfig) {
+  return ({
+      baseDate,
+      inMonth,
+      indexOffset,
+    }: {
+      baseDate: Date;
+      inMonth: boolean;
+      indexOffset: number;
+    }) =>
+    (day: number, index: number) => {
+      const date = setMidnight(
+        new Date(baseDate.getFullYear(), baseDate.getMonth(), day)
+      );
+      return {
+        date,
+        day,
+        dayOfWeek: (index + indexOffset) % 7,
+        isToday: now.getTime() == date.getTime(),
+        selection: getSelectionState(date, config.selection),
+        state: clampDate(date, config.after, config.before),
+        inMonth,
+      };
+    };
+}
+
 export const create = (
   forDate?: CalendarDate | null | undefined,
   options?: Partial<CalendarBuilderOptions>
@@ -61,71 +87,32 @@ export const create = (
   const end = new Date(current.getFullYear(), current.getMonth() + 1, 0);
   const nextMonth = getNextMonth(current);
   const prevMonth = getPrevMonth(current);
-
   const config = createConfig(options);
-
   const firstDay = start.getDay();
-
   const weeks = config.fillWeek ? 6 : Math.ceil(end.getDate() / 7);
 
-  const firstDays =
-    firstDay - config.firstDay < 0
-      ? 7 + firstDay - config.firstDay
-      : firstDay - config.firstDay;
-  const lastDays = weeks * 7 - (firstDays + end.getDate());
+  const firstDays = getFirstDays(firstDay, config);
+  const lastDays = getLastDays(weeks, firstDays, end);
 
   let indexOffset = config.firstDay;
 
+  const dayMapper = mapDay(now, config);
+
   const firstDaysFill = (
     firstDays > 0 ? getDisplayDays(prevMonth).slice(-firstDays) : []
-  ).map((day, index) => {
-    const date = setMidnight(
-      new Date(prevMonth.getFullYear(), prevMonth.getMonth(), day)
-    );
-    return {
-      date,
-      day,
-      dayOfWeek: (index + indexOffset) % 7,
-      isToday: now.getTime() == date.getTime(),
-      selection: getSelectionState(date, config.selection),
-      state: clampDate(date, config.after, config.before),
-      inMonth: false,
-    };
-  });
+  ).map(dayMapper({ baseDate: prevMonth, inMonth: false, indexOffset }));
 
   indexOffset += firstDaysFill.length;
 
   const monthDaysFill = Array.from({ length: end.getDate() })
     .map((_, index) => index + 1)
-    .map((day, index) => {
-      const date = new Date(current.getFullYear(), current.getMonth(), day);
-      return {
-        date,
-        day,
-        dayOfWeek: (index + indexOffset) % 7,
-        isToday: now.getTime() == date.getTime(),
-        selection: getSelectionState(date, config.selection),
-        state: clampDate(date, config.after, config.before),
-        inMonth: true,
-      };
-    });
+    .map(dayMapper({ baseDate: current, inMonth: true, indexOffset }));
 
   indexOffset += monthDaysFill.length;
 
   const lastDaysFill = getDisplayDays(nextMonth)
     .slice(0, lastDays)
-    .map((day, index) => {
-      const date = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), day);
-      return {
-        date,
-        day,
-        dayOfWeek: (index + indexOffset) % 7,
-        isToday: now.getTime() == date.getTime(),
-        selection: getSelectionState(date, config.selection),
-        state: clampDate(date, config.after, config.before),
-        inMonth: false,
-      };
-    });
+    .map(dayMapper({ baseDate: nextMonth, inMonth: false, indexOffset }));
 
   const days: CalendarDay[] = [
     ...firstDaysFill,
@@ -146,6 +133,16 @@ export const create = (
     prev: () => create(prevMonth, options),
   };
 };
+
+function getLastDays(weeks: number, firstDays: number, end: Date) {
+  return weeks * 7 - (firstDays + end.getDate());
+}
+
+function getFirstDays(firstDay: number, config: CalendarBuilderConfig) {
+  return firstDay - config.firstDay < 0
+    ? 7 + firstDay - config.firstDay
+    : firstDay - config.firstDay;
+}
 
 function setMidnight(date: Date): Date {
   return new Date(
