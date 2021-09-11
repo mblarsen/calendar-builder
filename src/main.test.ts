@@ -61,6 +61,8 @@ describe("config", () => {
       firstDay: 0,
       selection: null,
       now,
+      disableDays: [],
+      disableDaysOfWeek: [],
     });
   });
 
@@ -81,6 +83,8 @@ describe("config", () => {
       firstDay: 1,
       selection: null,
       now,
+      disableDays: [],
+      disableDaysOfWeek: [],
     });
   });
 });
@@ -284,10 +288,6 @@ describe("start on (batch)", () => {
   batch.forEach(({ year, month, startOn, days }) => {
     test(`${year}-${month} start on ${startOn}`, () => {
       const calendar = create({ year, month }, { firstDay: startOn });
-      // console.log(
-      //   "calendar",
-      //   calendar.days.map((d) => d.day)
-      // );
       expect(calendar.days.map((day) => day.day)).toStrictEqual(days);
     });
   });
@@ -449,6 +449,110 @@ describe("limit days", () => {
       "invalid",
       "invalid",
       "invalid",
+      "invalid",
+      "invalid",
+    ]);
+  });
+
+  test("disable days", () => {
+    const calendar = create(
+      { year: 2021, month: 9 },
+      { firstDay: 1, disableDays: [new Date(2021, 8, 5), new Date(2021, 8, 7)] }
+    );
+
+    expect(calendar.days.map((day) => day.state)).toStrictEqual([
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "invalid",
+      "valid",
+      "invalid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+    ]);
+  });
+
+  test("disable days of week", () => {
+    const calendar = create(
+      { year: 2021, month: 9 },
+      { firstDay: 1, disableDaysOfWeek: [0, 6] }
+    );
+
+    expect(calendar.days.map((day) => day.state)).toStrictEqual([
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "invalid",
+      "invalid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "invalid",
+      "invalid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "invalid",
+      "invalid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "invalid",
+      "invalid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "invalid",
+      "invalid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
+      "valid",
       "invalid",
       "invalid",
     ]);

@@ -31,6 +31,14 @@ export type CalendarBuilderOptions = {
    * Optionally pas in date for when is 'now'.
    */
   now: CalendarDate;
+  /**
+   * Disable days of the week
+   */
+  disableDaysOfWeek: number[];
+  /**
+   * Disable specific days
+   */
+  disableDays: CalendarDate[];
 };
 
 /**
@@ -45,13 +53,9 @@ export type CalendarBuilderConfig = {
   before: Date | null;
   selection: [Date, Date] | null;
   now: Date;
+  disableDaysOfWeek: number[];
+  disableDays: Date[];
 };
-
-/**
- * Calendar day state represent valid and invalid days, ie. days that are
- * selectable and should not be selectable
- */
-export type CalendarDayState = "valid" | "invalid";
 
 /**
  * Ways of specifyting date inputs
@@ -98,7 +102,11 @@ export type CalendarSheet = {
 };
 
 export type CalendarDay = {
-  state: CalendarDayState;
+  /**
+   * State represent valid and invalid days, ie. days that are selectable and
+   * should not be selectable
+   */
+  state: "valid" | "invalid";
   /**
    * The day of the month (referred to as 'date' in the Date api)
    */

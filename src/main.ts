@@ -1,13 +1,14 @@
 export * from "./types";
 
 import {
-  clampDate,
+  inRange,
   fromCalendarDate,
   getDisplayDays,
   getFirstDays,
   getLastDays,
   getNextMonth,
   getPrevMonth,
+  isDisabled,
   setMidnight,
 } from "./helpers";
 import {
@@ -88,10 +89,21 @@ function createConfig(
           setMidnight(fromCalendarDate(options.selection[1])),
         ]
       : null,
+    disableDaysOfWeek: options?.disableDaysOfWeek || [],
+    disableDays: (options?.disableDays || []).map((day) =>
+      setMidnight(fromCalendarDate(day))
+    ),
   };
 }
 
+function isDayValid(config: CalendarBuilderConfig): (date: Date) => boolean {
+  const isDisabled_ = isDisabled(config);
+  const inRange_ = inRange(config.after, config.before);
+  return (date: Date) => inRange_(date) && !isDisabled_(date);
+}
+
 function createDayMapperFactory(now: Date, config: CalendarBuilderConfig) {
+  const isValid = isDayValid(config);
   return ({
       indexOffset,
       date: baseDate,
@@ -101,13 +113,14 @@ function createDayMapperFactory(now: Date, config: CalendarBuilderConfig) {
       const date = setMidnight(
         new Date(baseDate.getFullYear(), baseDate.getMonth(), day)
       );
+
       return {
         date,
         day,
         dayOfWeek: (index + indexOffset) % 7,
         isToday: now.getTime() == date.getTime(),
         selection: getSelectionState(date, config.selection),
-        state: clampDate(date, config.after, config.before),
+        state: isValid(date) ? "valid" : "invalid",
         inMonth,
       };
     };

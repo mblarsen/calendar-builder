@@ -91,23 +91,45 @@ export function getDisplayDays(current: Date): number[] {
   return Array.from({ length: days }).map((_, index: number) => index + 1);
 }
 
-export function daysDelta(day: Date, delta: number): Date {
+function daysDelta(day: Date, delta: number): Date {
   return new Date(day.getFullYear(), day.getMonth(), day.getDate() + delta);
 }
 
-export function clampDate(
-  date: Date,
+export function isDisabled(
+  config: CalendarBuilderConfig
+): (date: Date) => boolean {
+  const disabledDays = config.disableDays.map((d) => d.getTime());
+
+  return (date: Date) =>
+    isDisabledDay(disabledDays, date) ||
+    isDisabledDayOfWeek(config.disableDaysOfWeek, date);
+}
+
+function isDisabledDay(disabledDays: number[], date: Date): boolean {
+  return disabledDays.some((disabled) => disabled === date.getTime());
+}
+
+function isDisabledDayOfWeek(
+  disabledDaysOfWeek: number[],
+  date: Date
+): boolean {
+  return disabledDaysOfWeek.includes(date.getDay());
+}
+
+export function inRange(
   after: Date | null,
   before: Date | null
-): CalendarDayState {
-  if (!after && !before) return "valid";
+): (date: Date) => boolean {
+  if (!after && !before) return () => true;
 
   const maxTime = Number.MAX_SAFE_INTEGER;
-  const val = date.getTime();
   const min = after ? daysDelta(after, 1).getTime() : 0;
   const max = before ? daysDelta(before, -1).getTime() : maxTime;
 
-  const clamped = Math.min(Math.max(val, min), max);
+  return (date: Date): boolean => {
+    const val = date.getTime();
+    const clamped = Math.min(Math.max(val, min), max);
 
-  return clamped === date.getTime() ? "valid" : "invalid";
+    return clamped === date.getTime() ? true : false;
+  };
 }
