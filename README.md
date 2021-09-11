@@ -439,3 +439,59 @@ Sample output from calling `create()`
   now: 2021-09-05T16:00:00.000Z
 }
 ```
+
+## Options
+
+Note that the
+
+- `month` in `CalendarDate` is 1-based and that,
+- `day` is what is called 'date' in the Date APi.
+
+```typescript
+type CalendarDate =
+  | { year: number; month: number; day?: number }
+  | string
+  | number
+  | Date;
+
+type CalendarBuilderOptions = {
+  /**
+   * The first day of the week
+   *
+   * Default: 0
+   */
+  firstDay: number;
+  /**
+   * Add a fill week to the end even if not needed. This is useful to avoid
+   * "flicker" when some months are 4-6 weeks only.
+   *
+   * Default: true
+   */
+  fillWeek: boolean;
+  /**
+   * Mark dates before this time invalid
+   */
+  after: CalendarDate;
+  /**
+   * Mark dates after this time invalid
+   */
+  before: CalendarDate;
+  /**
+   * Mark days in this range as selected. The selection state of the day may
+   * vary if it is the first, last, middle, or only day in the selection.
+   */
+  selection: [CalendarDate, CalendarDate];
+  /**
+   * Optionally pas in date for when is 'now'.
+   */
+  now: CalendarDate;
+  /**
+   * Disable days of the week
+   */
+  disableDaysOfWeek: number[];
+  /**
+   * Disable specific days
+   */
+  disableDays: CalendarDate[];
+};
+```
