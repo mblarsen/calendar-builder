@@ -58,7 +58,7 @@ export type CalendarBuilderConfig = {
 };
 
 /**
- * Ways of specifyting date inputs
+ * Ways of specifying date inputs
  */
 export type CalendarDate =
   | { year: number; month: number; day?: number }
