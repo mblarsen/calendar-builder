@@ -16,8 +16,16 @@
 - Supports before and after date
 - Supports start of week
 - Supports range selection
+- Supports disabling certains days
+- Supports disabling days of the week
 
-![Example](assets/example.jpeg)
+| Feature               | Example                                                                                 |
+| --------------------- | --------------------------------------------------------------------------------------- |
+| Default               | ![](assets/example-plain.jpg) Today is marked with a dot                                |
+| Selection: single     | ![](assets/example-selection-single.jpg)                                                |
+| Selection: range      | ![](assets/example-selection-range.jpg)                                                 |
+| Disable days of week  | ![](assets/example-disable-days-of-week.jpg) Tuesdays and Thursdays are disabled        |
+| Disable specific days | ![](assets/example-disable-specific-days.jpg) The days: 11, 12, 13, and 18 are disabled |
 
 ## Example usage
 
