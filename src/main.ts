@@ -120,7 +120,7 @@ function createDayMapperFactory(now: Date, config: CalendarBuilderConfig) {
         dayOfWeek: (index + indexOffset) % 7,
         isToday: now.getTime() == date.getTime(),
         selection: getSelectionState(date, config.selection),
-        state: isValid(date) ? "valid" : "invalid",
+        state: (isValid(date) ? "valid" : "invalid") as "valid" | "invalid",
         inMonth,
       };
     };
