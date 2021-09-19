@@ -52,6 +52,7 @@ const prevMonth = () => {
 
 Sample output from calling `create()`
 
+<details>
 ```
 {
   config: {
@@ -450,6 +451,7 @@ Sample output from calling `create()`
   now: 2021-09-05T16:00:00.000Z
 }
 ```
+</details>
 
 ## Options
 
