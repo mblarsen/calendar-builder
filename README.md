@@ -26,7 +26,7 @@
 | First day of week     | ![](assets/example-first-day.jpg) First day of week is now 'Sunday' (default)           |
 | Selection: single     | ![](assets/example-selection-single.jpg)                                                |
 | Selection: range      | ![](assets/example-selection-range.jpg)                                                 |
-| After                 | ![](assets/example-valid-after.jpg) Only dates after the 11th of May 2021 are valid     |
+| After                 | ![](assets/example-valid-after.jpg) Only dates after the 12th of May 2021 are valid     |
 | Before                | ![](assets/example-valid-before.jpg) Only dates before the 14th of May 2021 are valid   |
 | Disable days of week  | ![](assets/example-disable-days-of-week.jpg) Tuesdays and Thursdays are disabled        |
 | Disable specific days | ![](assets/example-disable-specific-days.jpg) The days: 11, 12, 13, and 18 are disabled |
