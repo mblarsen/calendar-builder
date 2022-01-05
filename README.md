@@ -12,6 +12,7 @@
 ### Features
 
 - Generates data to populate a grid
+- Split your events by date
 - Supports fill or fitted weeks (filled weeks always shows 6 weeks)
 - Supports before and after date
 - Supports start of week
