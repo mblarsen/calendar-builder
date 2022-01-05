@@ -482,11 +482,15 @@ type CalendarBuilderOptions = {
    */
   fillWeek: boolean;
   /**
-   * Mark dates before this time invalid
+   * Mark dates before this time invalid (excluding)
+   *
+   * E.g. after = 2021-05-29, then first valid date is 2021-05-30.
    */
   after: CalendarDate;
   /**
-   * Mark dates after this time invalid
+   * Mark dates after this time invalid (excluding)
+   *
+   * E.g. before = 2021-05-29, then last valid date is 2021-05-28.
    */
   before: CalendarDate;
   /**
