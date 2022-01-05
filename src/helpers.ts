@@ -17,7 +17,14 @@ export function getFirstDays(
     : firstDay - config.firstDay;
 }
 
+/**
+ * @deprecated use setStartOfDay()
+ */
 export function setMidnight(date: Date): Date {
+  return setStartOfDay(date);
+}
+
+export function setStartOfDay(date: Date): Date {
   return new Date(
     date.getFullYear(),
     date.getMonth(),
@@ -26,6 +33,18 @@ export function setMidnight(date: Date): Date {
     0,
     0,
     0
+  );
+}
+
+export function setEndOfDay(date: Date): Date {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    23,
+    59,
+    59,
+    999
   );
 }
 
