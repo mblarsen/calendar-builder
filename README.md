@@ -467,6 +467,12 @@ type CalendarDate =
   | number
   | Date;
 
+interface CalendarEvent<T = any> {
+  label: string,
+  date: Date
+  value?: T
+}
+
 type CalendarBuilderOptions = {
   /**
    * The first day of the week
@@ -510,5 +516,10 @@ type CalendarBuilderOptions = {
    * Disable specific days
    */
   disableDays: CalendarDate[];
+  /**
+   * Events to "bucket". Will distribute an array of events into the
+     event-bucket on each of the calendar days.
+   */
+  events: CalendarEvent[];
 };
 ```

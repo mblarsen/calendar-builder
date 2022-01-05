@@ -9,7 +9,9 @@ import {
   getNextMonth,
   getPrevMonth,
   isDisabled,
-  setMidnight,
+  setStartOfDay,
+  setEndOfDay,
+  daysDelta,
 } from "./helpers";
 import {
   CalendarBuilderConfig,
@@ -31,7 +33,7 @@ export const create = (
   forDate?: CalendarDate | null | undefined,
   options?: Partial<CalendarBuilderOptions>
 ): CalendarSheet => {
-  const current = setMidnight(fromCalendarDate(forDate || new Date()));
+  const current = setStartOfDay(fromCalendarDate(forDate || new Date()));
   if (!current || current.toString() === "Invalid Date") {
     throw new Error("Invalid Date");
   }
@@ -75,30 +77,33 @@ function createConfig(
 ): CalendarBuilderConfig {
   return {
     after: options?.after
-      ? setMidnight(fromCalendarDate(options?.after))
+      ? setStartOfDay(fromCalendarDate(options?.after))
       : null,
     before: options?.before
-      ? setMidnight(fromCalendarDate(options?.before))
+      ? setStartOfDay(fromCalendarDate(options?.before))
       : null,
     fillWeek: options?.fillWeek ?? true,
     firstDay: options?.firstDay || 0,
-    now: setMidnight(fromCalendarDate(options?.now || new Date())),
+    now: setStartOfDay(fromCalendarDate(options?.now || new Date())),
     selection: options?.selection
       ? [
-          setMidnight(fromCalendarDate(options.selection[0])),
-          setMidnight(fromCalendarDate(options.selection[1])),
+          setStartOfDay(fromCalendarDate(options.selection[0])),
+          setStartOfDay(fromCalendarDate(options.selection[1])),
         ]
       : null,
     disableDaysOfWeek: options?.disableDaysOfWeek || [],
     disableDays: (options?.disableDays || []).map((day) =>
-      setMidnight(fromCalendarDate(day))
+      setStartOfDay(fromCalendarDate(day))
     ),
+    events: options?.events || [],
   };
 }
 
 function isDayValid(config: CalendarBuilderConfig): (date: Date) => boolean {
   const isDisabled_ = isDisabled(config);
-  const inRange_ = inRange(config.after, config.before);
+  const dayAfter = config.after ? daysDelta(config.after, 1) : null;
+  const dayBefore = config.before ? daysDelta(config.before, -1) : null;
+  const inRange_ = inRange(dayAfter, dayBefore);
   return (date: Date) => inRange_(date) && !isDisabled_(date);
 }
 
@@ -110,9 +115,15 @@ function createDayMapperFactory(now: Date, config: CalendarBuilderConfig) {
       inMonth,
     }: Parameters<DayMapperFactory>[0]) =>
     (day: number, index: number) => {
-      const date = setMidnight(
+      const date = setStartOfDay(
         new Date(baseDate.getFullYear(), baseDate.getMonth(), day)
       );
+      const endDate = setEndOfDay(date);
+
+      const inRange_ = inRange(date, endDate);
+      const eventsForDay = config.events.filter((event) => {
+        return inRange_(event.date);
+      });
 
       return {
         date,
@@ -122,16 +133,17 @@ function createDayMapperFactory(now: Date, config: CalendarBuilderConfig) {
         selection: getSelectionState(date, config.selection),
         state: (isValid(date) ? "valid" : "invalid") as "valid" | "invalid",
         inMonth,
+        events: eventsForDay,
       };
     };
 }
 
 function getMonthData(current: Date, config: CalendarBuilderConfig) {
   const now = config.now;
-  const start = setMidnight(
+  const start = setStartOfDay(
     new Date(current.getFullYear(), current.getMonth(), 1)
   );
-  const end = setMidnight(
+  const end = setStartOfDay(
     new Date(current.getFullYear(), current.getMonth() + 1, 0)
   );
   const next = getNextMonth(current);
@@ -148,9 +160,9 @@ function getSelectionState(
   const [from, to] = selection || [];
   if (!from || !to) return null;
 
-  const min = setMidnight(from)?.getTime();
+  const min = setStartOfDay(from)?.getTime();
   const val = current.getTime();
-  const max = setMidnight(to)?.getTime();
+  const max = setStartOfDay(to)?.getTime();
 
   if (!min || !max) return null;
 

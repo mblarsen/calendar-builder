@@ -1,3 +1,9 @@
+export interface CalendarEvent<T = any> {
+  date: Date;
+  label: string;
+  value?: T;
+}
+
 export type CalendarBuilderOptions = {
   /**
    * The first day of the week
@@ -39,6 +45,10 @@ export type CalendarBuilderOptions = {
    * Disable specific days
    */
   disableDays: CalendarDate[];
+  /**
+   * A list of events to "bucket".
+   */
+  events: CalendarEvent[];
 };
 
 /**
@@ -55,6 +65,7 @@ export type CalendarBuilderConfig = {
   now: Date;
   disableDaysOfWeek: number[];
   disableDays: Date[];
+  events: CalendarEvent[];
 };
 
 /**
@@ -137,4 +148,8 @@ export type CalendarDay = {
    *   the end
    */
   selection: "start" | "end" | "included" | "single" | null;
+  /**
+   * Events on this day
+   */
+  events: CalendarEvent[];
 };

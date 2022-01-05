@@ -1,4 +1,4 @@
-import { create } from "./main";
+import { CalendarEvent, create } from "./main";
 
 describe("create", () => {
   test("no now", () => {
@@ -63,6 +63,7 @@ describe("config", () => {
       now,
       disableDays: [],
       disableDaysOfWeek: [],
+      events: [],
     });
   });
 
@@ -75,6 +76,7 @@ describe("config", () => {
     const calendar = create(new Date(), {
       firstDay: 1,
       fillWeek: false,
+      events: [{ label: "Matilde's birthday", date: new Date(2021, 4, 29) }],
     });
     expect(calendar.config).toStrictEqual({
       after: null,
@@ -85,6 +87,7 @@ describe("config", () => {
       now,
       disableDays: [],
       disableDaysOfWeek: [],
+      events: [{ label: "Matilde's birthday", date: new Date(2021, 4, 29) }],
     });
   });
 });
@@ -698,5 +701,39 @@ describe("selection", () => {
     expect(
       calendar.days.filter((day) => day.selection).map((day) => day.selection)
     ).toStrictEqual(Array(calendar.days.length).fill("included"));
+  });
+});
+describe("bucket", () => {
+  test("will split events into buckets", () => {
+    const event: CalendarEvent = {
+      label: "Thomas Bjørn Tingstrup's birthday",
+      date: new Date(2021, 8, 14, 14, 0, 0),
+    };
+    const calendar = create(
+      { year: 2021, month: 9 },
+      {
+        firstDay: 1,
+        events: [
+          event,
+          {
+            label: "Standup",
+            date: new Date(2021, 8, 15, 16, 0, 0),
+          },
+          {
+            label: "Scanner launch get-together",
+            date: new Date(2021, 8, 15, 18, 0, 0),
+          },
+        ],
+      }
+    );
+
+    const day14 = calendar.days[15];
+    expect(day14.day).toBe(14);
+    expect(day14.events?.length).toBe(1);
+    expect(day14.events?.[0]?.label).toBe((event as any).label);
+
+    const day15 = calendar.days[16];
+    expect(day15.day).toBe(15);
+    expect(day15.events?.length).toBe(2);
   });
 });
