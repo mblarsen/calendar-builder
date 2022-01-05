@@ -110,7 +110,7 @@ export function getDisplayDays(current: Date): number[] {
   return Array.from({ length: days }).map((_, index: number) => index + 1);
 }
 
-function daysDelta(day: Date, delta: number): Date {
+export function daysDelta(day: Date, delta: number): Date {
   return new Date(day.getFullYear(), day.getMonth(), day.getDate() + delta);
 }
 
@@ -142,8 +142,8 @@ export function inRange(
   if (!after && !before) return () => true;
 
   const maxTime = Number.MAX_SAFE_INTEGER;
-  const min = after ? daysDelta(after, 1).getTime() : 0;
-  const max = before ? daysDelta(before, -1).getTime() : maxTime;
+  const min = after ? setStartOfDay(after).getTime() : 0;
+  const max = before ? setEndOfDay(before).getTime() : maxTime;
 
   return (date: Date): boolean => {
     const val = date.getTime();
