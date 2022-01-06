@@ -717,11 +717,11 @@ describe("bucket", () => {
           event,
           {
             label: "Standup",
-            date: new Date(2021, 8, 15, 16, 0, 0),
+            date: new Date(2021, 8, 15, 16, 0, 0), // zero based month
           },
           {
             label: "Scanner launch get-together",
-            date: new Date(2021, 8, 15, 18, 0, 0),
+            date: new Date(2021, 8, 15, 18, 0, 0), // zero based month
           },
         ],
       }
@@ -735,5 +735,12 @@ describe("bucket", () => {
     const day15 = calendar.days[16];
     expect(day15.day).toBe(15);
     expect(day15.events?.length).toBe(2);
+  });
+});
+describe("bugs", () => {
+  test("provide correct next value spanning a year", () => {
+    const calendar = create({ year: 2021, month: 12 });
+    expect(calendar.prev.getMonth()).toBe(10); // zero based month
+    expect(calendar.next.getMonth()).toBe(0); // zero based month
   });
 });

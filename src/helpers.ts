@@ -91,7 +91,7 @@ export function getNextMonth(current: Date): Date {
 
   if (current.getMonth() === 11) {
     next.setFullYear(next.getFullYear() + 1);
-    next.setMonth(1);
+    next.setMonth(0);
     next.setDate(1);
   } else {
     next.setMonth(next.getMonth() + 1);
